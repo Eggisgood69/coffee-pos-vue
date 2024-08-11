@@ -100,10 +100,14 @@ function completeOrder() {
   const transaction = {
     // TODO: this will be issue when multi user create
     id: Date.now(),
-    items: currentOrder.value,
+    items: currentOrder.value.map((item) => ({
+      ...item,
+      price: calculateItemPrice(item)
+    })),
     total: orderTotal.value,
     date: new Date().toISOString()
   }
+
   checkoutStore.completeOrder(transaction)
   transactionsStore.addTransaction(transaction)
   currentOrder.value = []
@@ -112,17 +116,17 @@ function completeOrder() {
 </script>
 
 <template>
-  <div>
-    <h1 class="text-2xl font-semibold mb-4">Checkout</h1>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-semibold mb-4">Checkout</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <h2 class="text-xl font-semibold mb-2">Menu Items</h2>
-        <div class="grid grid-cols-2 gap-2">
+        <h2 class="text-2xl font-semibold mb-2">Menu Items</h2>
+        <div class="grid grid-cols-2 gap-3">
           <button
             v-for="item in menuItems"
             :key="item.id"
             @click="openCustomizeModal(item)"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:scale-105"
           >
             {{ item.name }} - ${{ item.basePrice }}
           </button>
@@ -130,11 +134,11 @@ function completeOrder() {
       </div>
       <div>
         <h2 class="text-xl font-semibold mb-2">Current Order</h2>
-        <ul class="space-y-2">
+        <ul class="space-y-3">
           <li
             v-for="(item, index) in currentOrder"
             :key="index"
-            class="flex justify-between items-center"
+            class="flex justify-between items-center border-b-[1px] border-gray-300 pb-1"
           >
             <span>
               {{ item.name }} ({{ item.customization.size }}, {{ item.customization.temperature }},
@@ -142,16 +146,27 @@ function completeOrder() {
                 calculateItemPrice(item)
               }}
             </span>
-            <button @click="removeFromOrder(index)" class="text-red-500 hover:text-red-700">
+            <button
+              @click="removeFromOrder(index)"
+              class="text-white hover:bg-red-700 bg-red-500 px-2 py-1 rounded-lg hover:scale-105"
+            >
               Remove
             </button>
           </li>
         </ul>
-        <div class="mt-4">
-          <p class="text-xl font-semibold">Total: ${{ orderTotal }}</p>
+        <div class="mt-6">
+          <p class="text-xl font-semibold">Total: $ {{ orderTotal }}</p>
           <button
+            v-if="currentOrder.length > 0"
             @click="completeOrder"
-            class="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+            class="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:scale-105"
+          >
+            Complete Order
+          </button>
+          <button
+            v-else
+            id="complete-order"
+            class="mt-3 bg-gray-500 text-white font-bold py-2 px-4 rounded-lg cursor-not-allowed"
           >
             Complete Order
           </button>
@@ -166,3 +181,26 @@ function completeOrder() {
     />
   </div>
 </template>
+
+<style scoped>
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(2px);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+#complete-order:active {
+  animation: shake 0.3s;
+}
+</style>
