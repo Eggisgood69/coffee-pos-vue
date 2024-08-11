@@ -10,7 +10,9 @@ const transactions = computed(() => transactionsStore.getTransactions())
 
 const filteredTransactions = computed(() => {
   if (!dateFilter.value) {
-    return transactions.value
+    return transactions.value.slice().sort((a, b) =>
+      new Date(b.date) - new Date(a.date)
+    ) // 按日期新到舊排列
   }
   const filterDate = new Date(dateFilter.value)
   return transactions.value.filter((transaction) => {
@@ -37,7 +39,7 @@ function filterTransactions() {
         id="dateFilter"
         v-model="dateFilter"
         @change="filterTransactions"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
       />
     </div>
     <TransactionList :transactions="filteredTransactions" />
