@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, h } from 'vue'
 import { useCheckoutStore } from '@/stores/checkout'
 import { useTransactionsStore } from '@/stores/transactions'
 import { useInventoryStore } from '@/stores/inventory'
@@ -8,6 +8,9 @@ import CustomizeModal from '@/components/CustomizeModal.vue'
 const checkoutStore = useCheckoutStore()
 const transactionsStore = useTransactionsStore()
 const inventoryStore = useInventoryStore()
+
+const menuCategories = ref(['coffee', 'tea', 'food'])
+const currentCategory = ref('coffee')
 
 const menuItems = ref([
   {
@@ -18,7 +21,8 @@ const menuItems = ref([
     sizes: ['小', '中', '大'],
     temperatures: ['熱', '冰'],
     sugarLevels: ['無糖', '微糖', '半糖', '正常'],
-    iceLevels: ['去冰', '微冰', '少冰', '正常冰']
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'coffee'
   },
   {
     id: 2,
@@ -28,7 +32,8 @@ const menuItems = ref([
     sizes: ['小', '中', '大'],
     temperatures: ['熱', '冰'],
     sugarLevels: ['無糖', '微糖', '半糖', '正常'],
-    iceLevels: ['去冰', '微冰', '少冰', '正常冰']
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'coffee'
   },
   {
     id: 3,
@@ -38,7 +43,8 @@ const menuItems = ref([
     sizes: ['小', '中', '大'],
     temperatures: ['熱', '冰'],
     sugarLevels: ['無糖', '微糖', '半糖', '正常'],
-    iceLevels: ['去冰', '微冰', '少冰', '正常冰']
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'coffee'
   },
   {
     id: 4,
@@ -48,7 +54,41 @@ const menuItems = ref([
     sizes: ['小', '中', '大'],
     temperatures: ['熱', '冰'],
     sugarLevels: ['無糖', '微糖', '半糖', '正常'],
-    iceLevels: ['去冰', '微冰', '少冰', '正常冰']
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'coffee'
+  },
+  {
+    id: 5,
+    code: 'black_tea',
+    name: '紅茶(Black Tea)',
+    basePrice: 30,
+    sizes: ['小', '中', '大'],
+    temperatures: ['熱', '冰'],
+    sugarLevels: ['無糖', '微糖', '半糖', '正常'],
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'tea'
+  },
+  {
+    id: 6,
+    code: 'green_tea',
+    name: '綠茶(Green Tea)',
+    basePrice: 30,
+    sizes: ['小', '中', '大'],
+    temperatures: ['熱', '冰'],
+    sugarLevels: ['無糖', '微糖', '半糖', '正常'],
+    iceLevels: ['去冰', '微冰', '少冰', '正常冰'],
+    catrogry: 'tea'
+  },
+  {
+    id: 7,
+    code: 'blueberry_bagel',
+    name: '藍莓貝果(Blueberry Bagel)',
+    basePrice: 80,
+    sizes: [],
+    temperatures: ['常溫', '加熱'],
+    sugarLevels: [],
+    iceLevels: [],
+    catrogry: 'food'
   }
 ])
 
@@ -113,6 +153,14 @@ function completeOrder() {
   currentOrder.value = []
   alert('Order completed!')
 }
+
+const filteredMenuItems = computed(() => {
+  return menuItems.value.filter((item) => item.catrogry === currentCategory.value)
+})
+
+function changeCategory(category) {
+  currentCategory.value = category
+}
 </script>
 
 <template>
@@ -120,10 +168,27 @@ function completeOrder() {
     <h1 class="text-3xl font-semibold mb-4">Checkout</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
+        <div class="mb-4">
+          <nav class="flex space-x-6">
+            <button
+              v-for="category in menuCategories"
+              :key="category"
+              @click="changeCategory(category)"
+              :class="[
+                'bg-blue-500 text-gray-700 px-4 py-2 rounded-lg shadow-md font-bold text-lg',
+                currentCategory === category
+                  ? 'bg-blue-500 text-white hover:bg-blue-700'
+                  : 'bg-gray-200 text-black hover:bg-gray-300'
+              ]"
+            >
+              {{ category }}
+            </button>
+          </nav>
+        </div>
         <h2 class="text-2xl font-semibold mb-2">Menu Items</h2>
         <div class="grid grid-cols-2 gap-3">
           <button
-            v-for="item in menuItems"
+            v-for="item in filteredMenuItems"
             :key="item.id"
             @click="openCustomizeModal(item)"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg hover:scale-105"
