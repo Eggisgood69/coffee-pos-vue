@@ -55,6 +55,31 @@ export const useInventoryStore = defineStore('inventory', {
     },
     addOrUpdateRecipe(code, recipe) {
       this.recipes[code] = recipe
+    },
+    checkTotalStock(orderItems) {
+      const totalNeeded = {}
+
+      for (const item of orderItems) {
+        const recipe = this.recipes[item.recipe]
+        if (!recipe) {
+          console.warn(`Recipe not found: ${item.code}`)
+          continue
+        }
+        for (const [ingredient, amount] of Object.entries(recipe.ingredients)) {
+          totalNeeded[ingredient] = (totalNeeded[ingredient] || 0) + amount
+        }
+      }
+      for (const [ingredient, needed] of Object.entries(totalNeeded)) {
+        if (!this.ingredients[ingredient] || this.ingredients[ingredient].amount < needed) {
+          return { success: false, ingredient: ingredient }
+        }
+      }
+      return { success: true }
+    },
+    consumeTotalIngredients(orderItems) {
+      for (const item of orderItems) {
+        this.consumeIngredients(item.code)
+      }
     }
   },
   getters: {
