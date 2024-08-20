@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, h } from 'vue'
+import { ref, computed } from 'vue'
 import { useCheckoutStore } from '@/stores/checkout'
 import { useTransactionsStore } from '@/stores/transactions'
 import { useInventoryStore } from '@/stores/inventory'
